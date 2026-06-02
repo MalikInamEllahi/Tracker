@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Tracking and Utilization System</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --text: #162033;
+      --muted: #637083;
+      --line: #e3eaf3;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-soft: #dbeafe;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --warning: #d97706;
+      --warning-soft: #fef3c7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --info: #0284c7;
+      --info-soft: #e0f2fe;
+      --gray-soft: #f1f5f9;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34rem),
+        linear-gradient(135deg, #f8fbff 0%, var(--bg) 42%, #edf3fb 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px;
+      background: linear-gradient(180deg, #0f172a 0%, #172554 100%);
+      color: #e5edff;
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #60a5fa, #2563eb);
+      box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: #a9b7d0;
+      font-size: 0.78rem;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      background: transparent;
+      color: #cbd5e1;
+      text-align: left;
+      transition: 180ms ease;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .sidebar-card {
+      margin-top: 26px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #dbeafe;
+    }
+
+    .sidebar-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .sidebar-card p {
+      margin: 0;
+      color: #b8c8df;
+      font-size: 0.88rem;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: -24px -24px 24px;
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.86);
+      background: rgba(248, 251, 255, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      letter-spacing: -0.03em;
+    }
+
+    .topbar-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge,
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.hidden,
+    .hidden {
+      display: none !important;
+    }
+
+    .badge-unsaved {
+      border: 1px solid rgba(217, 119, 6, 0.22);
+      background: var(--warning-soft);
+      color: #92400e;
+    }
+
+    .pill-success { background: var(--success-soft); color: #166534; }
+    .pill-blue { background: var(--primary-soft); color: #1d4ed8; }
+    .pill-red { background: var(--danger-soft); color: #991b1b; }
+    .pill-gray { background: var(--gray-soft); color: #475569; }
+    .pill-amber { background: var(--warning-soft); color: #92400e; }
+    .pill-info { background: var(--info-soft); color: #075985; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      font-weight: 750;
+      text-decoration: none;
+      transition: 180ms ease;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.52;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), #3b82f6);
+      color: #fff;
+    }
+
+    .btn-danger {
+      border-color: #fecaca;
+      background: #fff5f5;
+      color: var(--danger);
+    }
+
+    .btn-ghost {
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .btn-small {
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+    }
+
+    .tab-panel {
+      animation: fadeSlide 180ms ease;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 0 0 16px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 1.22rem;
+      letter-spacing: -0.03em;
+    }
+
+    .section-title p {
+      margin: 4px 0 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-auto { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+    .card {
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .summary-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 126px;
+    }
+
+    .summary-card::after {
+      content: "";
+      position: absolute;
+      right: -36px;
+      top: -36px;
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.1);
+    }
+
+    .summary-card .label {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 750;
+    }
+
+    .summary-card .value {
+      margin-top: 8px;
+      font-size: 2rem;
+      font-weight: 850;
+      letter-spacing: -0.05em;
+    }
+
+    .summary-card .hint {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .form-card {
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      color: #334155;
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 40px;
+      padding: 9px 11px;
+      border: 1px solid #d8e2ee;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: 150ms ease;
+    }
+
+    .field textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.13);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 13px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #475569;
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: var(--panel-soft);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .progress {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e2e8f0;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #22c55e, #2563eb);
+    }
+
+    .progress span.over {
+      background: linear-gradient(90deg, #f97316, #dc2626);
+    }
+
+    .chart-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 190px) 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .chart-label {
+      min-width: 0;
+      font-weight: 750;
+    }
+
+    .chart-value {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 750;
+    }
+
+    .assignment-sections {
+      display: grid;
+      gap: 18px;
+    }
+
+    .department-section {
+      overflow: hidden;
+    }
+
+    .department-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(135deg, #fff, #f8fbff);
+    }
+
+    .assignment-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .assignment-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .assignment-card h4 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .assignment-card p {
+      margin: 4px 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .assignment-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .empty-state {
+      padding: 28px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      background: #f8fafc;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .data-action-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px;
+    }
+
+    .data-action-card h4 {
+      margin: 0 0 6px;
+    }
+
+    .data-action-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      background: rgba(15, 23, 42, 0.58);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(720px, 100%);
+      max-height: min(88vh, 880px);
+      overflow: auto;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+    }
+
+    .modal-header,
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-footer {
+      justify-content: flex-end;
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-content {
+      padding: 20px;
+    }
+
+    .toast-container {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 200;
+      display: grid;
+      gap: 10px;
+      width: min(390px, calc(100vw - 36px));
+    }
+
+    .toast {
+      display: flex;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--primary);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.16);
+      animation: toastIn 180ms ease;
+    }
+
+    .toast.success { border-left-color: var(--success); }
+    .toast.error { border-left-color: var(--danger); }
+    .toast.warning { border-left-color: var(--warning); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .detail-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .detail-item {
+      padding: 12px;
+      border-radius: 14px;
+      background: var(--panel-soft);
+    }
+
+    .detail-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 750;
+      text-transform: uppercase;
+    }
+
+    .detail-item strong {
+      display: block;
+      margin-top: 4px;
+      word-break: break-word;
+    }
+
+    @media (max-width: 1120px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .form-grid,
+      .filters,
+      .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .main {
+        padding: 16px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        margin: -16px -16px 16px;
+        padding: 16px;
+      }
+
+      .topbar-actions {
+        justify-content: flex-start;
+      }
+
+      .nav,
+      .form-grid,
+      .filters,
+      .grid-2,
+      .grid-3,
+      .grid-4 {
+        grid-template-columns: 1fr;
+      }
+
+      .section-title,
+      .data-action-card {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .chart-row {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">ET</div>
+        <div>
+          <h1>Employee Tracking and Utilization System</h1>
+          <p>Internal operations workspace</p>
+        </div>
+      </div>
+      <nav class="nav" id="mainNav"></nav>
+      <div class="sidebar-card">
+        <strong>Local saved application</strong>
+        <p>All data is stored in this browser with draft recovery, backups, and version history.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <div class="topbar-meta">Last Saved: <span id="lastSavedText">Never</span></div>
+        </div>
+        <div class="topbar-actions">
+          <span id="unsavedBadge" class="badge badge-unsaved hidden">Unsaved Changes</span>
+          <button class="btn" onclick="downloadFullBackup()">Download Backup</button>
+          <button id="saveChangesBtn" class="btn btn-primary" onclick="saveOfficialData()" disabled>Save Changes</button>
+        </div>
+      </header>
+      <section id="appContent" class="tab-panel"></section>
+    </main>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Modal</h3>
+        <button class="btn btn-ghost btn-small" onclick="closeModal()">Close</button>
+      </div>
+      <div id="modalContent" class="modal-content"></div>
+      <div id="modalFooter" class="modal-footer"></div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEYS = {
+      savedData: "employeeTracking_savedData",
+      draftData: "employeeTracking_draftData",
+      commitHistory: "employeeTracking_commitHistory",
+      lastSavedAt: "employeeTracking_lastSavedAt",
+      settings: "employeeTracking_settings"
+    };
+
+    const defaultDepartmentNames = ["3D", "2D", "Web", "AI", "Unreal", "BA", "Project Management"];
+    const tabs = [
+      { id: "dashboard", label: "Dashboard" },
+      { id: "projects", label: "Projects" },
+      { id: "assignments", label: "Assignments" },
+      { id: "admin", label: "Admin" },
+      { id: "dataCenter", label: "Data Center" },
+      { id: "history", label: "History / Commits" }
+    ];
+
+    let state = {
+      departments: [],
+      employees: [],
+      projects: [],
+      assignments: [],
+      settings: { savedBy: "Admin" }
+    };
+    let commitHistory = [];
+    let lastSavedAt = "";
+    let hasUnsavedChanges = false;
+    let activeTab = "dashboard";
+    let dashboardFilters = { departmentId: "", projectId: "", utilizationStatus: "", assignmentStatus: "" };
+    let projectFilters = { search: "", status: "" };
+    let employeeFilters = { search: "", departmentId: "", status: "" };
+    let assignmentFilters = { search: "", departmentId: "", projectId: "", assignmentStatus: "" };
+    let pendingImportData = null;
+
+    document.addEventListener("DOMContentLoaded", initApp);
+    window.addEventListener("beforeunload", function(event) {
+      if (!hasUnsavedChanges) return;
+      event.preventDefault();
+      event.returnValue = "You have unsaved changes. If you leave now, those changes may be lost.";
+    });
+
+    function initApp() {
+      renderNav();
+      loadSavedData();
+      updateChrome();
+      renderCurrentTab();
+    }
+
+    function generateId(prefix = "id") {
+      return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 9);
+    }
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "Never";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Never";
+      return date.toLocaleString();
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      const date = new Date(value + "T00:00:00");
+      if (Number.isNaN(date.getTime())) return "-";
+      return date.toLocaleDateString();
+    }
+
+    function todayDateOnly() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return today;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function normalizeStatus(value) {
+      return String(value || "").trim();
+    }
+
+    function getDepartmentName(departmentId) {
+      return state.departments.find(department => department.id === departmentId)?.name || "Unassigned";
+    }
+
+    function getEmployeeName(employeeId) {
+      return state.employees.find(employee => employee.id === employeeId)?.name || "Unknown employee";
+    }
+
+    function getProjectName(projectId) {
+      return state.projects.find(project => project.id === projectId)?.name || "Unknown project";
+    }
+
+    function createDataEnvelope() {
+      return {
+        timestamp: nowIso(),
+        data: {
+          departments: state.departments,
+          employees: state.employees,
+          projects: state.projects,
+          assignments: state.assignments
+        },
+        settings: state.settings || { savedBy: "Admin" }
+      };
+    }
+
+    function cloneData(data) {
+      return JSON.parse(JSON.stringify(data));
+    }
+
+    function applyLoadedData(envelopeOrData) {
+      const source = envelopeOrData?.data ? envelopeOrData.data : envelopeOrData;
+      state.departments = Array.isArray(source?.departments) ? source.departments : [];
+      state.employees = Array.isArray(source?.employees) ? source.employees : [];
+      state.projects = Array.isArray(source?.projects) ? source.projects : [];
+      state.assignments = Array.isArray(source?.assignments) ? source.assignments : [];
+      state.settings = envelopeOrData?.settings || source?.settings || readJSON(STORAGE_KEYS.settings, { savedBy: "Admin" }) || { savedBy: "Admin" };
+      ensureDefaultSettings();
+      ensureDepartmentBackfill();
+    }
+
+    function ensureDefaultSettings() {
+      if (!state.settings || typeof state.settings !== "object") state.settings = {};
+      if (!state.settings.savedBy) state.settings.savedBy = "Admin";
+    }
+
+    function ensureDepartmentBackfill() {
+      const timestamp = nowIso();
+      defaultDepartmentNames.forEach(name => {
+        if (!state.departments.some(department => department.name.toLowerCase() === name.toLowerCase())) {
+          state.departments.push({ id: generateId("dept"), name, createdAt: timestamp, updatedAt: timestamp });
+        }
+      });
+    }
+
+    function readJSON(key, fallback = null) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function loadSavedData() {
+      const savedEnvelope = readJSON(STORAGE_KEYS.savedData);
+      const draftEnvelope = readJSON(STORAGE_KEYS.draftData);
+      commitHistory = readJSON(STORAGE_KEYS.commitHistory, []);
+      lastSavedAt = localStorage.getItem(STORAGE_KEYS.lastSavedAt) || savedEnvelope?.timestamp || "";
+
+      if (savedEnvelope) {
+        applyLoadedData(savedEnvelope);
+        if (draftEnvelope && isDraftNewer(draftEnvelope, savedEnvelope)) {
+          setTimeout(() => showDraftRestoreModal(draftEnvelope, savedEnvelope), 150);
+        }
+        return;
+      }
+
+      if (draftEnvelope) {
+        applyLoadedData(createDemoDataEnvelope());
+        setTimeout(() => showDraftRestoreModal(draftEnvelope, null), 150);
+        return;
+      }
+
+      applyLoadedData(createDemoDataEnvelope());
+      hasUnsavedChanges = true;
+      saveDraftData();
+      setTimeout(() => showToast("Demo data loaded. Click Save Changes to create your first saved version.", "warning"), 300);
+    }
+
+    function isDraftNewer(draftEnvelope, savedEnvelope) {
+      const draftTime = new Date(draftEnvelope?.timestamp || 0).getTime();
+      const savedTime = new Date(savedEnvelope?.timestamp || localStorage.getItem(STORAGE_KEYS.lastSavedAt) || 0).getTime();
+      return draftTime > savedTime;
+    }
+
+    function showDraftRestoreModal(draftEnvelope, savedEnvelope) {
+      openModal(
+        "You have unsaved draft changes",
+        "<p>You have unsaved draft changes. Do you want to restore them?</p><p class=\"topbar-meta\">Draft saved: " + escapeHTML(formatDateTime(draftEnvelope?.timestamp)) + "</p>",
+        [
+          {
+            label: "Restore Draft",
+            className: "btn btn-primary",
+            onClick: function() {
+              applyLoadedData(draftEnvelope);
+              hasUnsavedChanges = true;
+              closeModal();
+              updateChrome();
+              renderCurrentTab();
+              showToast("Draft restored successfully", "success");
+            }
+          },
+          {
+            label: "Discard Draft",
+            className: "btn btn-danger",
+            onClick: function() {
+              localStorage.removeItem(STORAGE_KEYS.draftData);
+              if (savedEnvelope) {
+                applyLoadedData(savedEnvelope);
+                hasUnsavedChanges = false;
+              } else {
+                applyLoadedData(createDemoDataEnvelope());
+                hasUnsavedChanges = true;
+                saveDraftData();
+              }
+              closeModal();
+              updateChrome();
+              renderCurrentTab();
+              showToast("Draft discarded", "warning");
+            }
+          },
+          {
+            label: "Continue with Last Saved Version",
+            className: "btn",
+            onClick: function() {
+              if (savedEnvelope) {
+                applyLoadedData(savedEnvelope);
+                hasUnsavedChanges = false;
+              } else {
+                applyLoadedData(createDemoDataEnvelope());
+                hasUnsavedChanges = true;
+                saveDraftData();
+              }
+              closeModal();
+              updateChrome();
+              renderCurrentTab();
+            }
+          }
+        ]
+      );
+    }
+
+    function saveOfficialData() {
+      const timestamp = nowIso();
+      const envelope = createDataEnvelope();
+      envelope.timestamp = timestamp;
+      localStorage.setItem(STORAGE_KEYS.savedData, JSON.stringify(envelope));
+      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings));
+      localStorage.setItem(STORAGE_KEYS.lastSavedAt, timestamp);
+      lastSavedAt = timestamp;
+      createCommit(timestamp);
+      localStorage.removeItem(STORAGE_KEYS.draftData);
+      hasUnsavedChanges = false;
+      updateChrome();
+      renderCurrentTab();
+      showToast("Changes saved successfully", "success");
+    }
+
+    function saveDraftData() {
+      const envelope = createDataEnvelope();
+      localStorage.setItem(STORAGE_KEYS.draftData, JSON.stringify(envelope));
+    }
+
+    function markUnsavedChanges(message) {
+      hasUnsavedChanges = true;
+      saveDraftData();
+      updateChrome();
+      renderCurrentTab();
+      if (message) showToast(message, "success");
+    }
+
+    function createCommit(timestamp = nowIso()) {
+      const averageUtilization = calculateAverageUtilization();
+      const commit = {
+        id: generateId("commit"),
+        commitNumber: (commitHistory[0]?.commitNumber || 0) + 1,
+        dateTime: timestamp,
+        summary: "System state saved with " + state.employees.length + " employees, " + state.departments.length + " departments, " + state.projects.length + " projects, and " + state.assignments.length + " assignments.",
+        savedBy: state.settings.savedBy || "Admin",
+        employeesCount: state.employees.length,
+        projectsCount: state.projects.length,
+        assignmentsCount: state.assignments.length,
+        departmentsCount: state.departments.length,
+        averageUtilization,
+        snapshotData: {
+          departments: cloneData(state.departments),
+          employees: cloneData(state.employees),
+          projects: cloneData(state.projects),
+          assignments: cloneData(state.assignments),
+          settings: cloneData(state.settings),
+          lastSavedAt: timestamp
+        }
+      };
+      commitHistory.unshift(commit);
+      commitHistory = commitHistory.slice(0, 50);
+      localStorage.setItem(STORAGE_KEYS.commitHistory, JSON.stringify(commitHistory));
+      return commit;
+    }
+
+    function calculateEndDate(startDate, durationWeeks) {
+      const start = new Date(startDate + "T00:00:00");
+      const weeks = Number(durationWeeks);
+      if (Number.isNaN(start.getTime()) || !weeks) return "";
+      start.setDate(start.getDate() + weeks * 7);
+      return start.toISOString().slice(0, 10);
+    }
+
+    function calculateAssignmentStatus(assignment) {
+      if (!assignment?.startDate || !assignment?.endDate) return "Upcoming";
+      const today = todayDateOnly();
+      const start = new Date(assignment.startDate + "T00:00:00");
+      const end = new Date(assignment.endDate + "T00:00:00");
+      if (today < start) return "Upcoming";
+      if (today > end) return "Completed";
+      return "Active";
+    }
+
+    function calculateEmployeeUtilization(employeeId) {
+      const employee = state.employees.find(item => item.id === employeeId);
+      if (!employee) return { totalAllocation: 0, availability: 100, activeProjects: [], status: "Available", activeAssignments: [] };
+      if (employee.status === "Inactive") return { totalAllocation: 0, availability: 0, activeProjects: [], status: "Inactive", activeAssignments: [] };
+      const activeAssignments = state.assignments.filter(assignment => assignment.employeeId === employeeId && calculateAssignmentStatus(assignment) === "Active");
+      const totalAllocation = activeAssignments.reduce((sum, assignment) => sum + Number(assignment.allocation || 0), 0);
+      const activeProjects = [...new Set(activeAssignments.map(assignment => assignment.projectId))].map(getProjectName);
+      return {
+        totalAllocation,
+        availability: Math.max(0, 100 - totalAllocation),
+        activeProjects,
+        status: getUtilizationStatus(totalAllocation, employee.status),
+        activeAssignments
+      };
+    }
+
+    function getUtilizationStatus(allocation, employeeStatus = "Active") {
+      if (employeeStatus === "Inactive") return "Inactive";
+      if (allocation === 0) return "Available";
+      if (allocation >= 1 && allocation <= 74) return "Partially Utilized";
+      if (allocation >= 75 && allocation <= 99) return "Highly Utilized";
+      if (allocation === 100) return "Fully Utilized";
+      return "Overallocated";
+    }
+
+    function calculateAverageUtilization() {
+      const activeEmployees = state.employees.filter(employee => employee.status !== "Inactive");
+      if (!activeEmployees.length) return 0;
+      const total = activeEmployees.reduce((sum, employee) => sum + calculateEmployeeUtilization(employee.id).totalAllocation, 0);
+      return Math.round(total / activeEmployees.length);
+    }
+
+    function renderNav() {
+      document.getElementById("mainNav").innerHTML = tabs.map(tab => (
+        "<button class=\"" + (tab.id === activeTab ? "active" : "") + "\" onclick=\"switchTab('" + tab.id + "')\">" +
+        "<span>" + escapeHTML(tab.label) + "</span><span>›</span></button>"
+      )).join("");
+    }
+
+    function switchTab(tabId) {
+      activeTab = tabId;
+      renderNav();
+      updateChrome();
+      renderCurrentTab();
+    }
+
+    function updateChrome() {
+      const tab = tabs.find(item => item.id === activeTab);
+      document.getElementById("pageTitle").textContent = tab?.label || "Dashboard";
+      document.getElementById("lastSavedText").textContent = formatDateTime(lastSavedAt);
+      document.getElementById("unsavedBadge").classList.toggle("hidden", !hasUnsavedChanges);
+      document.getElementById("saveChangesBtn").disabled = !hasUnsavedChanges;
+    }
+
+    function renderCurrentTab() {
+      updateChrome();
+      renderNav();
+      if (activeTab === "dashboard") renderDashboard();
+      if (activeTab === "projects") renderProjects();
+      if (activeTab === "assignments") renderAssignments();
+      if (activeTab === "admin") renderAdmin();
+      if (activeTab === "dataCenter") renderDataCenter();
+      if (activeTab === "history") renderHistory();
+    }
+
+    function renderDashboard() {
+      const content = document.getElementById("appContent");
+      const filteredEmployees = getFilteredEmployeeUtilizationRows();
+      const activeProjects = state.projects.filter(project => project.status === "Active").length;
+      const activeAssignments = state.assignments.filter(assignment => calculateAssignmentStatus(assignment) === "Active").length;
+      const overallocated = state.employees.filter(employee => calculateEmployeeUtilization(employee.id).status === "Overallocated").length;
+      const available = state.employees.filter(employee => calculateEmployeeUtilization(employee.id).status === "Available").length;
+      const summaryCards = [
+        ["Total Employees", state.employees.length, "People in the system"],
+        ["Active Employees", state.employees.filter(employee => employee.status === "Active").length, "Available for allocation"],
+        ["Total Projects", state.projects.length, "Tracked projects"],
+        ["Active Projects", activeProjects, "Currently active"],
+        ["Total Departments", state.departments.length, "Operating groups"],
+        ["Active Assignments", activeAssignments, "Live allocations"],
+        ["Average Utilization", calculateAverageUtilization() + "%", "Across active employees"],
+        ["Overallocated Employees", overallocated, "Above 100%"],
+        ["Available Employees", available, "No active allocation"]
+      ];
+
+      content.innerHTML = `
+        <div class="section-title">
+          <div>
+            <h3>Operational Dashboard</h3>
+            <p>Live view of staffing, allocations, utilization risk, and project load.</p>
+          </div>
+        </div>
+        <div class="grid grid-auto">
+          ${summaryCards.map(card => `
+            <article class="card summary-card"><div class="card-body">
+              <div class="label">${escapeHTML(card[0])}</div>
+              <div class="value">${escapeHTML(card[1])}</div>
+              <div class="hint">${escapeHTML(card[2])}</div>
+            </div></article>
+          `).join("")}
+        </div>
+        <div class="card form-card" style="margin-top:18px;"><div class="card-body">
+          <div class="filters">
+            ${departmentSelectField("dashboardDepartmentFilter", dashboardFilters.departmentId, "All Departments", "onDashboardFilterChange()")}
+            ${projectSelectField("dashboardProjectFilter", dashboardFilters.projectId, "All Projects", "onDashboardFilterChange()")}
+            <div class="field"><label>Utilization Status</label><select id="dashboardUtilizationFilter" onchange="onDashboardFilterChange()">
+              ${option("", "All Utilization", dashboardFilters.utilizationStatus)}
+              ${["Available", "Partially Utilized", "Highly Utilized", "Fully Utilized", "Overallocated", "Inactive"].map(status => option(status, status, dashboardFilters.utilizationStatus)).join("")}
+            </select></div>
+            <div class="field"><label>Assignment Status</label><select id="dashboardAssignmentFilter" onchange="onDashboardFilterChange()">
+              ${option("", "All Assignment Status", dashboardFilters.assignmentStatus)}
+              ${["Upcoming", "Active", "Completed"].map(status => option(status, status, dashboardFilters.assignmentStatus)).join("")}
+            </select></div>
+          </div>
+        </div></div>
+        <div class="grid grid-2">
+          <section class="card"><div class="card-body">
+            <div class="section-title"><div><h3>Utilization by Department</h3><p>Average active allocation by department.</p></div></div>
+            ${renderUtilizationByDepartmentChart()}
+          </div></section>
+          <section class="card"><div class="card-body">
+            <div class="section-title"><div><h3>Project Resource Load</h3><p>Assigned people, allocation, departments, and status.</p></div></div>
+            ${renderProjectResourceLoad()}
+          </div></section>
+        </div>
+        <section class="card" style="margin-top:18px;"><div class="card-body">
+          <div class="section-title"><div><h3>Employee Utilization List</h3><p>Availability and active allocation by employee.</p></div></div>
+          ${renderEmployeeUtilizationTable(filteredEmployees)}
+        </div></section>
+        <div class="grid grid-3" style="margin-top:18px;">
+          <section class="card"><div class="card-body"><h3>Overallocated Employees</h3>${renderEmployeeStatusList("Overallocated")}</div></section>
+          <section class="card"><div class="card-body"><h3>Available Employees</h3>${renderEmployeeStatusList("Available")}</div></section>
+          <section class="card"><div class="card-body"><h3>Assignment Timeline Summary</h3>${renderAssignmentTimelineSummary()}</div></section>
+        </div>
+      `;
+    }
+
+    function onDashboardFilterChange() {
+      dashboardFilters.departmentId = document.getElementById("dashboardDepartmentFilter").value;
+      dashboardFilters.projectId = document.getElementById("dashboardProjectFilter").value;
+      dashboardFilters.utilizationStatus = document.getElementById("dashboardUtilizationFilter").value;
+      dashboardFilters.assignmentStatus = document.getElementById("dashboardAssignmentFilter").value;
+      renderDashboard();
+    }
+
+    function getFilteredEmployeeUtilizationRows() {
+      return state.employees.map(employee => {
+        const utilization = calculateEmployeeUtilization(employee.id);
+        return { employee, utilization };
+      }).filter(row => {
+        if (dashboardFilters.departmentId && row.employee.departmentId !== dashboardFilters.departmentId) return false;
+        if (dashboardFilters.utilizationStatus && row.utilization.status !== dashboardFilters.utilizationStatus) return false;
+        if (dashboardFilters.projectId && !row.utilization.activeAssignments.some(assignment => assignment.projectId === dashboardFilters.projectId)) return false;
+        if (dashboardFilters.assignmentStatus && !state.assignments.some(assignment => assignment.employeeId === row.employee.id && calculateAssignmentStatus(assignment) === dashboardFilters.assignmentStatus)) return false;
+        return true;
+      });
+    }
+
+    function renderEmployeeUtilizationTable(rows) {
+      if (!rows.length) return emptyState("No employees match the selected dashboard filters.");
+      return `<div class="table-wrap"><table>
+        <thead><tr><th>Employee Name</th><th>Department</th><th>Active Projects</th><th>Total Active Allocation %</th><th>Availability %</th><th>Utilization Status</th></tr></thead>
+        <tbody>${rows.map(row => {
+          const percent = row.utilization.totalAllocation;
+          return `<tr>
+            <td><strong>${escapeHTML(row.employee.name)}</strong><br><span class="topbar-meta">${escapeHTML(row.employee.designation || "-")}</span></td>
+            <td>${escapeHTML(getDepartmentName(row.employee.departmentId))}</td>
+            <td>${escapeHTML(row.utilization.activeProjects.join(", ") || "None")}</td>
+            <td><strong>${percent}%</strong><div class="progress"><span class="${percent > 100 ? "over" : ""}" style="width:${Math.min(percent, 140)}%"></span></div></td>
+            <td>${row.utilization.availability}%</td>
+            <td>${statusPill(row.utilization.status)}</td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table></div>`;
+    }
+
+    function renderUtilizationByDepartmentChart() {
+      if (!state.departments.length) return emptyState("No departments available.");
+      const rows = state.departments.map(department => {
+        const employees = state.employees.filter(employee => employee.departmentId === department.id && employee.status !== "Inactive");
+        const average = employees.length ? Math.round(employees.reduce((sum, employee) => sum + calculateEmployeeUtilization(employee.id).totalAllocation, 0) / employees.length) : 0;
+        return { department, average };
+      });
+      return `<div class="chart-list">${rows.map(row => `
+        <div class="chart-row">
+          <div class="chart-label">${escapeHTML(row.department.name)}</div>
+          <div class="progress"><span class="${row.average > 100 ? "over" : ""}" style="width:${Math.min(row.average, 140)}%"></span></div>
+          <div class="chart-value">${row.average}%</div>
+        </div>
+      `).join("")}</div>`;
+    }
+
+    function renderProjectResourceLoad() {
+      const projects = state.projects.filter(project => !dashboardFilters.projectId || project.id === dashboardFilters.projectId);
+      if (!projects.length) return emptyState("No projects available.");
+      return `<div class="chart-list">${projects.map(project => {
+        const assignments = state.assignments.filter(assignment => assignment.projectId === project.id && (!dashboardFilters.assignmentStatus || calculateAssignmentStatus(assignment) === dashboardFilters.assignmentStatus));
+        const employeeCount = new Set(assignments.map(assignment => assignment.employeeId)).size;
+        const allocation = assignments.reduce((sum, assignment) => sum + Number(assignment.allocation || 0), 0);
+        const departments = [...new Set(assignments.map(assignment => getDepartmentName(assignment.departmentId)))].filter(Boolean);
+        return `<div class="detail-item">
+          <strong>${escapeHTML(project.name)}</strong>
+          <p class="topbar-meta">${employeeCount} employees | ${allocation}% allocation | ${escapeHTML(departments.join(", ") || "No departments")} | ${statusPill(project.status)}</p>
+        </div>`;
+      }).join("")}</div>`;
+    }
+
+    function renderEmployeeStatusList(status) {
+      const rows = state.employees.filter(employee => calculateEmployeeUtilization(employee.id).status === status);
+      if (!rows.length) return emptyState("No " + status.toLowerCase() + " employees.");
+      return `<div class="chart-list">${rows.map(employee => {
+        const utilization = calculateEmployeeUtilization(employee.id);
+        return `<div class="detail-item"><strong>${escapeHTML(employee.name)}</strong><p class="topbar-meta">${escapeHTML(getDepartmentName(employee.departmentId))} | ${utilization.totalAllocation}% utilized</p></div>`;
+      }).join("")}</div>`;
+    }
+
+    function renderAssignmentTimelineSummary() {
+      const statuses = ["Upcoming", "Active", "Completed"];
+      return `<div class="chart-list">${statuses.map(status => {
+        const count = state.assignments.filter(assignment => calculateAssignmentStatus(assignment) === status).length;
+        return `<div class="chart-row"><div class="chart-label">${status}</div><div class="progress"><span style="width:${Math.min(count * 15, 100)}%"></span></div><div class="chart-value">${count}</div></div>`;
+      }).join("")}</div>`;
+    }
+
+    function renderProjects() {
+      const filteredProjects = state.projects.filter(project => {
+        const search = projectFilters.search.toLowerCase();
+        const matchesSearch = !search || project.name.toLowerCase().includes(search) || String(project.clientName || "").toLowerCase().includes(search);
+        const matchesStatus = !projectFilters.status || project.status === projectFilters.status;
+        return matchesSearch && matchesStatus;
+      });
+      document.getElementById("appContent").innerHTML = `
+        <div class="section-title">
+          <div><h3>Project Management</h3><p>Create and maintain project records used by assignments and dashboards.</p></div>
+        </div>
+        <section class="card form-card"><div class="card-body">
+          <h3>Add Project</h3>
+          <form class="form-grid" onsubmit="addProject(event)">
+            <div class="field"><label>Project Name *</label><input id="projectName" required></div>
+            <div class="field"><label>Client Name</label><input id="projectClient"></div>
+            <div class="field"><label>Status</label><select id="projectStatus">${["Planned", "Active", "On Hold", "Completed"].map(status => option(status, status, "Active")).join("")}</select></div>
+            <div class="field"><label>Start Date</label><input id="projectStart" type="date"></div>
+            <div class="field"><label>Expected End Date</label><input id="projectEnd" type="date"></div>
+            <div class="field" style="grid-column:span 2;"><label>Notes</label><input id="projectNotes"></div>
+            <button class="btn btn-primary" type="submit">Add Project</button>
+          </form>
+        </div></section>
+        <section class="card"><div class="card-body">
+          <div class="filters">
+            <div class="field"><label>Search Projects</label><input id="projectSearch" value="${escapeHTML(projectFilters.search)}" oninput="onProjectFilterChange()" placeholder="Project or client"></div>
+            <div class="field"><label>Project Status</label><select id="projectStatusFilter" onchange="onProjectFilterChange()">
+              ${option("", "All Statuses", projectFilters.status)}
+              ${["Planned", "Active", "On Hold", "Completed"].map(status => option(status, status, projectFilters.status)).join("")}
+            </select></div>
+          </div>
+          ${renderProjectsTable(filteredProjects)}
+        </div></section>
+      `;
+    }
+
+    function renderProjectsTable(projects) {
+      if (!projects.length) return emptyState("No projects match your search or filters.");
+      return `<div class="table-wrap"><table>
+        <thead><tr><th>Project</th><th>Client</th><th>Status</th><th>Dates</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody>${projects.map(project => `<tr>
+          <td><strong>${escapeHTML(project.name)}</strong></td>
+          <td>${escapeHTML(project.clientName || "-")}</td>
+          <td>${statusPill(project.status)}</td>
+          <td>${formatDate(project.startDate)} - ${formatDate(project.expectedEndDate)}</td>
+          <td>${escapeHTML(project.notes || "-")}</td>
+          <td><div class="actions"><button class="btn btn-small" onclick="openProjectEdit('${project.id}')">Edit</button><button class="btn btn-danger btn-small" onclick="deleteProject('${project.id}')">Delete</button></div></td>
+        </tr>`).join("")}</tbody>
+      </table></div>`;
+    }
+
+    function onProjectFilterChange() {
+      projectFilters.search = document.getElementById("projectSearch").value;
+      projectFilters.status = document.getElementById("projectStatusFilter").value;
+      renderProjects();
+    }
+
+    function addProject(event) {
+      event.preventDefault();
+      const name = document.getElementById("projectName").value.trim();
+      if (!name) return showToast("Project name is required", "error");
+      const timestamp = nowIso();
+      state.projects.push({
+        id: generateId("proj"),
+        name,
+        clientName: document.getElementById("projectClient").value.trim(),
+        status: document.getElementById("projectStatus").value,
+        startDate: document.getElementById("projectStart").value,
+        expectedEndDate: document.getElementById("projectEnd").value,
+        notes: document.getElementById("projectNotes").value.trim(),
+        createdAt: timestamp,
+        updatedAt: timestamp
+      });
+      event.target.reset();
+      document.getElementById("projectStatus").value = "Active";
+      markUnsavedChanges("Data added");
+    }
+
+    function openProjectEdit(projectId) {
+      const project = state.projects.find(item => item.id === projectId);
+      if (!project) return;
+      openModal("Edit Project", `
+        <form id="projectEditForm" class="grid">
+          <div class="field"><label>Project Name *</label><input id="editProjectName" value="${escapeHTML(project.name)}" required></div>
+          <div class="field"><label>Client Name</label><input id="editProjectClient" value="${escapeHTML(project.clientName || "")}"></div>
+          <div class="field"><label>Status</label><select id="editProjectStatus">${["Planned", "Active", "On Hold", "Completed"].map(status => option(status, status, project.status)).join("")}</select></div>
+          <div class="grid grid-2">
+            <div class="field"><label>Start Date</label><input id="editProjectStart" type="date" value="${escapeHTML(project.startDate || "")}"></div>
+            <div class="field"><label>Expected End Date</label><input id="editProjectEnd" type="date" value="${escapeHTML(project.expectedEndDate || "")}"></div>
+          </div>
+          <div class="field"><label>Notes</label><textarea id="editProjectNotes">${escapeHTML(project.notes || "")}</textarea></div>
+        </form>
+      `, [
+        { label: "Cancel", className: "btn", onClick: closeModal },
+        { label: "Update Project", className: "btn btn-primary", onClick: () => updateProject(projectId) }
+      ]);
+    }
+
+    function updateProject(projectId) {
+      const project = state.projects.find(item => item.id === projectId);
+      const name = document.getElementById("editProjectName").value.trim();
+      if (!project || !name) return showToast("Project name is required", "error");
+      project.name = name;
+      project.clientName = document.getElementById("editProjectClient").value.trim();
+      project.status = document.getElementById("editProjectStatus").value;
+      project.startDate = document.getElementById("editProjectStart").value;
+      project.expectedEndDate = document.getElementById("editProjectEnd").value;
+      project.notes = document.getElementById("editProjectNotes").value.trim();
+      project.updatedAt = nowIso();
+      closeModal();
+      markUnsavedChanges("Data updated");
+    }
+
+    async function deleteProject(projectId) {
+      const project = state.projects.find(item => item.id === projectId);
+      if (!project) return;
+      const relatedAssignments = state.assignments.filter(assignment => assignment.projectId === projectId);
+      const activeAssignments = relatedAssignments.filter(assignment => calculateAssignmentStatus(assignment) === "Active");
+      let message = "Delete project \"" + project.name + "\"?";
+      if (activeAssignments.length) message += " This project has active assignments. Related assignments will also be removed.";
+      const confirmed = await showConfirmModal("Delete Project", message, "Delete Project", true);
+      if (!confirmed) return;
+      state.projects = state.projects.filter(item => item.id !== projectId);
+      state.assignments = state.assignments.filter(assignment => assignment.projectId !== projectId);
+      markUnsavedChanges("Data deleted");
+    }
+
+    function renderAssignments() {
+      const filteredAssignments = getFilteredAssignments();
+      document.getElementById("appContent").innerHTML = `
+        <div class="section-title">
+          <div><h3>Assignments</h3><p>Assign employees to projects, calculate timelines, and monitor active allocations.</p></div>
+        </div>
+        <section class="card form-card"><div class="card-body">
+          <h3>Add Assignment</h3>
+          <form class="form-grid" onsubmit="addAssignment(event)">
+            ${projectSelectField("assignmentProject", "", "Select Project", "")}
+            ${departmentSelectField("assignmentDepartment", "", "Select Department", "onAssignmentDepartmentChange()")}
+            <div class="field"><label>Employee *</label><select id="assignmentEmployee" required><option value="">Select department first</option></select></div>
+            <div class="field"><label>Allocation % *</label><input id="assignmentAllocation" type="number" min="1" max="200" value="50" required></div>
+            <div class="field"><label>Start Date *</label><input id="assignmentStart" type="date" onchange="updateAssignmentEndPreview()" required></div>
+            <div class="field"><label>Duration Weeks *</label><input id="assignmentDuration" type="number" min="1" max="52" value="4" onchange="updateAssignmentEndPreview()" required></div>
+            <div class="field"><label>End Date</label><input id="assignmentEndPreview" readonly></div>
+            <div class="field"><label>Notes</label><input id="assignmentNotes"></div>
+            <button class="btn btn-primary" type="submit">Add Assignment</button>
+          </form>
+        </div></section>
+        <section class="card form-card"><div class="card-body">
+          <div class="filters">
+            <div class="field"><label>Search Assignments</label><input id="assignmentSearch" value="${escapeHTML(assignmentFilters.search)}" oninput="onAssignmentFilterChange()" placeholder="Employee or project"></div>
+            ${departmentSelectField("assignmentDepartmentFilter", assignmentFilters.departmentId, "All Departments", "onAssignmentFilterChange()")}
+            ${projectSelectField("assignmentProjectFilter", assignmentFilters.projectId, "All Projects", "onAssignmentFilterChange()")}
+            <div class="field"><label>Assignment Status</label><select id="assignmentStatusFilter" onchange="onAssignmentFilterChange()">
+              ${option("", "All Statuses", assignmentFilters.assignmentStatus)}
+              ${["Upcoming", "Active", "Completed"].map(status => option(status, status, assignmentFilters.assignmentStatus)).join("")}
+            </select></div>
+          </div>
+        </div></section>
+        ${renderAssignmentSections(filteredAssignments)}
+      `;
+      onAssignmentDepartmentChange();
+      updateAssignmentEndPreview();
+    }
+
+    function onAssignmentDepartmentChange() {
+      const departmentId = document.getElementById("assignmentDepartment")?.value || "";
+      const employeeSelect = document.getElementById("assignmentEmployee");
+      if (!employeeSelect) return;
+      const employees = state.employees.filter(employee => employee.status === "Active" && (!departmentId || employee.departmentId === departmentId));
+      employeeSelect.innerHTML = option("", employees.length ? "Select Employee" : "No active employees", "") + employees.map(employee => option(employee.id, employee.name, "")).join("");
+    }
+
+    function updateAssignmentEndPreview() {
+      const start = document.getElementById("assignmentStart")?.value;
+      const duration = document.getElementById("assignmentDuration")?.value;
+      const preview = document.getElementById("assignmentEndPreview");
+      if (preview) preview.value = start && duration ? calculateEndDate(start, duration) : "";
+    }
+
+    function onAssignmentFilterChange() {
+      assignmentFilters.search = document.getElementById("assignmentSearch").value;
+      assignmentFilters.departmentId = document.getElementById("assignmentDepartmentFilter").value;
+      assignmentFilters.projectId = document.getElementById("assignmentProjectFilter").value;
+      assignmentFilters.assignmentStatus = document.getElementById("assignmentStatusFilter").value;
+      renderAssignments();
+    }
+
+    function getFilteredAssignments() {
+      return state.assignments.filter(assignment => {
+        const employeeName = getEmployeeName(assignment.employeeId).toLowerCase();
+        const projectName = getProjectName(assignment.projectId).toLowerCase();
+        const search = assignmentFilters.search.toLowerCase();
+        if (search && !employeeName.includes(search) && !projectName.includes(search)) return false;
+        if (assignmentFilters.departmentId && assignment.departmentId !== assignmentFilters.departmentId) return false;
+        if (assignmentFilters.projectId && assignment.projectId !== assignmentFilters.projectId) return false;
+        if (assignmentFilters.assignmentStatus && calculateAssignmentStatus(assignment) !== assignmentFilters.assignmentStatus) return false;
+        return true;
+      });
+    }
+
+    function renderAssignmentSections(assignments) {
+      if (!state.departments.length) return emptyState("Create departments and employees before adding assignments.");
+      return `<div class="assignment-sections">${state.departments.map(department => {
+        const departmentAssignments = assignments.filter(assignment => assignment.departmentId === department.id);
+        return `<section class="card department-section">
+          <div class="department-heading">
+            <div><h3>${escapeHTML(department.name)}</h3><p class="topbar-meta">${departmentAssignments.length} assignments</p></div>
+            <span class="pill pill-blue">${escapeHTML(department.name)}</span>
+          </div>
+          ${departmentAssignments.length ? `<div class="assignment-cards">${departmentAssignments.map(renderAssignmentCard).join("")}</div>` : `<div class="card-body">${emptyState("No assignments in this department.")}</div>`}
+        </section>`;
+      }).join("")}</div>`;
+    }
+
+    function renderAssignmentCard(assignment) {
+      const status = calculateAssignmentStatus(assignment);
+      return `<article class="assignment-card">
+        <h4>${escapeHTML(getEmployeeName(assignment.employeeId))}</h4>
+        <p><strong>Project:</strong> ${escapeHTML(getProjectName(assignment.projectId))}</p>
+        <div class="assignment-meta">
+          <span class="pill pill-blue">${Number(assignment.allocation)}%</span>
+          ${statusPill(status)}
+        </div>
+        <p><strong>Start:</strong> ${formatDate(assignment.startDate)} | <strong>End:</strong> ${formatDate(assignment.endDate)}</p>
+        <p><strong>Duration:</strong> ${assignment.durationWeeks} weeks</p>
+        <p><strong>Notes:</strong> ${escapeHTML(assignment.notes || "-")}</p>
+        <div class="actions" style="margin-top:12px;">
+          <button class="btn btn-small" onclick="openAssignmentEdit('${assignment.id}')">Edit</button>
+          <button class="btn btn-danger btn-small" onclick="deleteAssignment('${assignment.id}')">Delete</button>
+        </div>
+      </article>`;
+    }
+
+    function validateAssignmentInput(projectId, departmentId, employeeId, allocation, startDate, durationWeeks) {
+      if (!projectId) return "Project is required";
+      if (!departmentId) return "Department is required";
+      if (!employeeId) return "Employee is required";
+      if (!allocation || Number(allocation) <= 0) return "Allocation should be greater than 0";
+      if (!startDate || Number.isNaN(new Date(startDate + "T00:00:00").getTime())) return "Start date should be valid";
+      if (!durationWeeks || Number(durationWeeks) < 1 || Number(durationWeeks) > 52) return "Duration should be between 1 and 52 weeks";
+      return "";
+    }
+
+    function addAssignment(event) {
+      event.preventDefault();
+      const projectId = document.getElementById("assignmentProject").value;
+      const departmentId = document.getElementById("assignmentDepartment").value;
+      const employeeId = document.getElementById("assignmentEmployee").value;
+      const allocation = Number(document.getElementById("assignmentAllocation").value);
+      const startDate = document.getElementById("assignmentStart").value;
+      const durationWeeks = Number(document.getElementById("assignmentDuration").value);
+      const validation = validateAssignmentInput(projectId, departmentId, employeeId, allocation, startDate, durationWeeks);
+      if (validation) return showToast(validation, "error");
+      const timestamp = nowIso();
+      state.assignments.push({
+        id: generateId("assign"),
+        projectId,
+        employeeId,
+        departmentId,
+        allocation,
+        startDate,
+        durationWeeks,
+        endDate: calculateEndDate(startDate, durationWeeks),
+        notes: document.getElementById("assignmentNotes").value.trim(),
+        createdAt: timestamp,
+        updatedAt: timestamp
+      });
+      event.target.reset();
+      markUnsavedChanges("Data added");
+    }
+
+    function openAssignmentEdit(assignmentId) {
+      const assignment = state.assignments.find(item => item.id === assignmentId);
+      if (!assignment) return;
+      openModal("Edit Assignment", `
+        <form id="assignmentEditForm" class="grid">
+          ${projectSelectField("editAssignmentProject", assignment.projectId, "Select Project", "")}
+          ${departmentSelectField("editAssignmentDepartment", assignment.departmentId, "Select Department", "updateEditAssignmentEmployees('" + assignment.employeeId + "')")}
+          <div class="field"><label>Employee *</label><select id="editAssignmentEmployee"></select></div>
+          <div class="grid grid-2">
+            <div class="field"><label>Allocation % *</label><input id="editAssignmentAllocation" type="number" min="1" max="200" value="${Number(assignment.allocation)}"></div>
+            <div class="field"><label>Duration Weeks *</label><input id="editAssignmentDuration" type="number" min="1" max="52" value="${Number(assignment.durationWeeks)}" onchange="updateEditAssignmentEndPreview()"></div>
+          </div>
+          <div class="grid grid-2">
+            <div class="field"><label>Start Date *</label><input id="editAssignmentStart" type="date" value="${escapeHTML(assignment.startDate)}" onchange="updateEditAssignmentEndPreview()"></div>
+            <div class="field"><label>End Date</label><input id="editAssignmentEndPreview" readonly value="${escapeHTML(assignment.endDate)}"></div>
+          </div>
+          <div class="field"><label>Notes</label><textarea id="editAssignmentNotes">${escapeHTML(assignment.notes || "")}</textarea></div>
+        </form>
+      `, [
+        { label: "Cancel", className: "btn", onClick: closeModal },
+        { label: "Update Assignment", className: "btn btn-primary", onClick: () => updateAssignment(assignmentId) }
+      ]);
+      updateEditAssignmentEmployees(assignment.employeeId);
+      updateEditAssignmentEndPreview();
+    }
+
+    function updateEditAssignmentEmployees(selectedEmployeeId = "") {
+      const departmentId = document.getElementById("editAssignmentDepartment")?.value || "";
+      const select = document.getElementById("editAssignmentEmployee");
+      if (!select) return;
+      const employees = state.employees.filter(employee => employee.status === "Active" && (!departmentId || employee.departmentId === departmentId));
+      select.innerHTML = option("", "Select Employee", selectedEmployeeId) + employees.map(employee => option(employee.id, employee.name, selectedEmployeeId)).join("");
+    }
+
+    function updateEditAssignmentEndPreview() {
+      const start = document.getElementById("editAssignmentStart")?.value;
+      const duration = document.getElementById("editAssignmentDuration")?.value;
+      const preview = document.getElementById("editAssignmentEndPreview");
+      if (preview) preview.value = start && duration ? calculateEndDate(start, duration) : "";
+    }
+
+    function updateAssignment(assignmentId) {
+      const assignment = state.assignments.find(item => item.id === assignmentId);
+      const projectId = document.getElementById("editAssignmentProject").value;
+      const departmentId = document.getElementById("editAssignmentDepartment").value;
+      const employeeId = document.getElementById("editAssignmentEmployee").value;
+      const allocation = Number(document.getElementById("editAssignmentAllocation").value);
+      const startDate = document.getElementById("editAssignmentStart").value;
+      const durationWeeks = Number(document.getElementById("editAssignmentDuration").value);
+      const validation = validateAssignmentInput(projectId, departmentId, employeeId, allocation, startDate, durationWeeks);
+      if (!assignment || validation) return showToast(validation || "Assignment not found", "error");
+      assignment.projectId = projectId;
+      assignment.departmentId = departmentId;
+      assignment.employeeId = employeeId;
+      assignment.allocation = allocation;
+      assignment.startDate = startDate;
+      assignment.durationWeeks = durationWeeks;
+      assignment.endDate = calculateEndDate(startDate, durationWeeks);
+      assignment.notes = document.getElementById("editAssignmentNotes").value.trim();
+      assignment.updatedAt = nowIso();
+      closeModal();
+      markUnsavedChanges("Data updated");
+    }
+
+    async function deleteAssignment(assignmentId) {
+      const confirmed = await showConfirmModal("Delete Assignment", "Delete this assignment?", "Delete Assignment", true);
+      if (!confirmed) return;
+      state.assignments = state.assignments.filter(item => item.id !== assignmentId);
+      markUnsavedChanges("Data deleted");
+    }
+
+    function renderAdmin() {
+      const filteredEmployees = state.employees.filter(employee => {
+        const search = employeeFilters.search.toLowerCase();
+        const matchesSearch = !search || employee.name.toLowerCase().includes(search) || String(employee.designation || "").toLowerCase().includes(search);
+        const matchesDepartment = !employeeFilters.departmentId || employee.departmentId === employeeFilters.departmentId;
+        const matchesStatus = !employeeFilters.status || employee.status === employeeFilters.status;
+        return matchesSearch && matchesDepartment && matchesStatus;
+      });
+      document.getElementById("appContent").innerHTML = `
+        <div class="section-title">
+          <div><h3>Admin</h3><p>Maintain employee records, departments, and administrative settings.</p></div>
+        </div>
+        <div class="grid grid-2">
+          <section class="card form-card"><div class="card-body">
+            <h3>Add Employee</h3>
+            <form class="grid" onsubmit="addEmployee(event)">
+              <div class="field"><label>Employee Name *</label><input id="employeeName" required></div>
+              ${departmentSelectField("employeeDepartment", "", "Select Department", "")}
+              <div class="field"><label>Designation</label><input id="employeeDesignation"></div>
+              <div class="field"><label>Status</label><select id="employeeStatus">${["Active", "Inactive"].map(status => option(status, status, "Active")).join("")}</select></div>
+              <div class="field"><label>Notes</label><textarea id="employeeNotes"></textarea></div>
+              <button class="btn btn-primary" type="submit">Add Employee</button>
+            </form>
+          </div></section>
+          <section class="card form-card"><div class="card-body">
+            <h3>Add Department</h3>
+            <form class="grid" onsubmit="addDepartment(event)">
+              <div class="field"><label>Department Name *</label><input id="departmentName" required></div>
+              <button class="btn btn-primary" type="submit">Add Department</button>
+            </form>
+            <hr style="border:0;border-top:1px solid var(--line);margin:20px 0;">
+            <h3>Settings</h3>
+            <div class="field"><label>Saved By</label><input id="settingsSavedBy" value="${escapeHTML(state.settings.savedBy || "Admin")}" onchange="updateSavedBySetting()"></div>
+          </div></section>
+        </div>
+        <section class="card form-card"><div class="card-body">
+          <div class="section-title"><div><h3>Employees</h3><p>Search, filter, edit, or delete employees.</p></div></div>
+          <div class="filters">
+            <div class="field"><label>Search Employees</label><input id="employeeSearch" value="${escapeHTML(employeeFilters.search)}" oninput="onEmployeeFilterChange()" placeholder="Name or designation"></div>
+            ${departmentSelectField("employeeDepartmentFilter", employeeFilters.departmentId, "All Departments", "onEmployeeFilterChange()")}
+            <div class="field"><label>Status</label><select id="employeeStatusFilter" onchange="onEmployeeFilterChange()">
+              ${option("", "All Statuses", employeeFilters.status)}
+              ${["Active", "Inactive"].map(status => option(status, status, employeeFilters.status)).join("")}
+            </select></div>
+          </div>
+          ${renderEmployeesTable(filteredEmployees)}
+        </div></section>
+        <section class="card"><div class="card-body">
+          <div class="section-title"><div><h3>Departments</h3><p>Departments power filters, forms, and assignment sections.</p></div></div>
+          ${renderDepartmentsTable()}
+        </div></section>
+      `;
+    }
+
+    function updateSavedBySetting() {
+      state.settings.savedBy = document.getElementById("settingsSavedBy").value.trim() || "Admin";
+      markUnsavedChanges("Settings updated");
+    }
+
+    function onEmployeeFilterChange() {
+      employeeFilters.search = document.getElementById("employeeSearch").value;
+      employeeFilters.departmentId = document.getElementById("employeeDepartmentFilter").value;
+      employeeFilters.status = document.getElementById("employeeStatusFilter").value;
+      renderAdmin();
+    }
+
+    function addEmployee(event) {
+      event.preventDefault();
+      const name = document.getElementById("employeeName").value.trim();
+      const departmentId = document.getElementById("employeeDepartment").value;
+      if (!name) return showToast("Employee name is required", "error");
+      if (!departmentId) return showToast("Department is required", "error");
+      const timestamp = nowIso();
+      state.employees.push({
+        id: generateId("emp"),
+        name,
+        departmentId,
+        designation: document.getElementById("employeeDesignation").value.trim(),
+        status: document.getElementById("employeeStatus").value,
+        notes: document.getElementById("employeeNotes").value.trim(),
+        createdAt: timestamp,
+        updatedAt: timestamp
+      });
+      event.target.reset();
+      markUnsavedChanges("Data added");
+    }
+
+    function renderEmployeesTable(employees) {
+      if (!employees.length) return emptyState("No employees match your search or filters.");
+      return `<div class="table-wrap"><table>
+        <thead><tr><th>Employee</th><th>Department</th><th>Designation</th><th>Status</th><th>Utilization</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody>${employees.map(employee => {
+          const utilization = calculateEmployeeUtilization(employee.id);
+          return `<tr>
+            <td><strong>${escapeHTML(employee.name)}</strong></td>
+            <td>${escapeHTML(getDepartmentName(employee.departmentId))}</td>
+            <td>${escapeHTML(employee.designation || "-")}</td>
+            <td>${statusPill(employee.status)}</td>
+            <td>${utilization.totalAllocation}% | ${statusPill(utilization.status)}</td>
+            <td>${escapeHTML(employee.notes || "-")}</td>
+            <td><div class="actions"><button class="btn btn-small" onclick="openEmployeeEdit('${employee.id}')">Edit</button><button class="btn btn-danger btn-small" onclick="deleteEmployee('${employee.id}')">Delete</button></div></td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table></div>`;
+    }
+
+    function openEmployeeEdit(employeeId) {
+      const employee = state.employees.find(item => item.id === employeeId);
+      if (!employee) return;
+      openModal("Edit Employee", `
+        <form class="grid">
+          <div class="field"><label>Employee Name *</label><input id="editEmployeeName" value="${escapeHTML(employee.name)}"></div>
+          ${departmentSelectField("editEmployeeDepartment", employee.departmentId, "Select Department", "")}
+          <div class="field"><label>Designation</label><input id="editEmployeeDesignation" value="${escapeHTML(employee.designation || "")}"></div>
+          <div class="field"><label>Status</label><select id="editEmployeeStatus">${["Active", "Inactive"].map(status => option(status, status, employee.status)).join("")}</select></div>
+          <div class="field"><label>Notes</label><textarea id="editEmployeeNotes">${escapeHTML(employee.notes || "")}</textarea></div>
+        </form>
+      `, [
+        { label: "Cancel", className: "btn", onClick: closeModal },
+        { label: "Update Employee", className: "btn btn-primary", onClick: () => updateEmployee(employeeId) }
+      ]);
+    }
+
+    function updateEmployee(employeeId) {
+      const employee = state.employees.find(item => item.id === employeeId);
+      const name = document.getElementById("editEmployeeName").value.trim();
+      const departmentId = document.getElementById("editEmployeeDepartment").value;
+      if (!employee || !name) return showToast("Employee name is required", "error");
+      if (!departmentId) return showToast("Department is required", "error");
+      employee.name = name;
+      employee.departmentId = departmentId;
+      employee.designation = document.getElementById("editEmployeeDesignation").value.trim();
+      employee.status = document.getElementById("editEmployeeStatus").value;
+      employee.notes = document.getElementById("editEmployeeNotes").value.trim();
+      employee.updatedAt = nowIso();
+      state.assignments.filter(assignment => assignment.employeeId === employeeId).forEach(assignment => {
+        assignment.departmentId = departmentId;
+        assignment.updatedAt = nowIso();
+      });
+      closeModal();
+      markUnsavedChanges("Data updated");
+    }
+
+    async function deleteEmployee(employeeId) {
+      const employee = state.employees.find(item => item.id === employeeId);
+      if (!employee) return;
+      const relatedAssignments = state.assignments.filter(assignment => assignment.employeeId === employeeId);
+      const activeAssignments = relatedAssignments.filter(assignment => calculateAssignmentStatus(assignment) === "Active");
+      let message = "Delete employee \"" + employee.name + "\"?";
+      if (activeAssignments.length) message += " This employee has active assignments. Related assignments will also be removed.";
+      const confirmed = await showConfirmModal("Delete Employee", message, "Delete Employee", true);
+      if (!confirmed) return;
+      state.employees = state.employees.filter(item => item.id !== employeeId);
+      state.assignments = state.assignments.filter(assignment => assignment.employeeId !== employeeId);
+      markUnsavedChanges("Data deleted");
+    }
+
+    function addDepartment(event) {
+      event.preventDefault();
+      const name = document.getElementById("departmentName").value.trim();
+      if (!name) return showToast("Department is required", "error");
+      if (state.departments.some(department => department.name.toLowerCase() === name.toLowerCase())) return showToast("Department already exists", "error");
+      const timestamp = nowIso();
+      state.departments.push({ id: generateId("dept"), name, createdAt: timestamp, updatedAt: timestamp });
+      event.target.reset();
+      markUnsavedChanges("Data added");
+    }
+
+    function renderDepartmentsTable() {
+      if (!state.departments.length) return emptyState("No departments available.");
+      return `<div class="table-wrap"><table>
+        <thead><tr><th>Department</th><th>Employees</th><th>Created</th><th>Updated</th><th>Actions</th></tr></thead>
+        <tbody>${state.departments.map(department => {
+          const employeeCount = state.employees.filter(employee => employee.departmentId === department.id).length;
+          return `<tr>
+            <td><strong>${escapeHTML(department.name)}</strong></td>
+            <td>${employeeCount}</td>
+            <td>${formatDateTime(department.createdAt)}</td>
+            <td>${formatDateTime(department.updatedAt)}</td>
+            <td><div class="actions"><button class="btn btn-small" onclick="openDepartmentEdit('${department.id}')">Edit</button><button class="btn btn-danger btn-small" onclick="deleteDepartment('${department.id}')">Delete</button></div></td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table></div>`;
+    }
+
+    function openDepartmentEdit(departmentId) {
+      const department = state.departments.find(item => item.id === departmentId);
+      if (!department) return;
+      openModal("Edit Department", `
+        <div class="field"><label>Department Name *</label><input id="editDepartmentName" value="${escapeHTML(department.name)}"></div>
+      `, [
+        { label: "Cancel", className: "btn", onClick: closeModal },
+        { label: "Update Department", className: "btn btn-primary", onClick: () => updateDepartment(departmentId) }
+      ]);
+    }
+
+    function updateDepartment(departmentId) {
+      const department = state.departments.find(item => item.id === departmentId);
+      const name = document.getElementById("editDepartmentName").value.trim();
+      if (!department || !name) return showToast("Department is required", "error");
+      if (state.departments.some(item => item.id !== departmentId && item.name.toLowerCase() === name.toLowerCase())) return showToast("Department already exists", "error");
+      department.name = name;
+      department.updatedAt = nowIso();
+      closeModal();
+      markUnsavedChanges("Data updated");
+    }
+
+    async function deleteDepartment(departmentId) {
+      const department = state.departments.find(item => item.id === departmentId);
+      if (!department) return;
+      const employeeCount = state.employees.filter(employee => employee.departmentId === departmentId).length;
+      const assignmentCount = state.assignments.filter(assignment => assignment.departmentId === departmentId).length;
+      if (employeeCount > 0) return showToast("Cannot delete a department while employees are assigned to it", "error");
+      if (assignmentCount > 0) return showToast("Cannot delete a department while assignments use it", "error");
+      const confirmed = await showConfirmModal("Delete Department", "Delete department \"" + department.name + "\"?", "Delete Department", true);
+      if (!confirmed) return;
+      state.departments = state.departments.filter(item => item.id !== departmentId);
+      markUnsavedChanges("Data deleted");
+    }
+
+    function renderDataCenter() {
+      document.getElementById("appContent").innerHTML = `
+        <div class="section-title">
+          <div><h3>Data Center</h3><p>Download backups, export CSV files, import data, and reset the local workspace.</p></div>
+        </div>
+        <div class="grid">
+          ${dataActionCard("Full Backup", "Download employees, departments, projects, assignments, settings, commit history, and last saved timestamp.", "Download Full Backup JSON", "downloadFullBackup()")}
+          ${dataActionCard("Export Employees CSV", "Export employee name, department, designation, status, and notes.", "Download Employees CSV", "downloadEmployeesCSV()")}
+          ${dataActionCard("Export Projects CSV", "Export project name, client, status, dates, and notes.", "Download Projects CSV", "downloadProjectsCSV()")}
+          ${dataActionCard("Export Assignments CSV", "Export assignment project, employee, department, allocation, dates, status, and notes.", "Download Assignments CSV", "downloadAssignmentsCSV()")}
+          ${dataActionCard("Export Dashboard Summary CSV", "Export utilization, availability, and active project summary by employee.", "Download Dashboard Summary CSV", "downloadDashboardSummaryCSV()")}
+          <section class="card data-action-card">
+            <div><h4>Import Backup JSON</h4><p>Upload a valid backup JSON file. Imported data is loaded as unsaved working data until you click Save Changes.</p></div>
+            <div class="actions">
+              <input id="backupImportInput" type="file" accept="application/json,.json" onchange="importBackupJSON(event)" class="hidden">
+              <button class="btn" onclick="document.getElementById('backupImportInput').click()">Choose JSON File</button>
+            </div>
+          </section>
+          <section class="card data-action-card">
+            <div><h4>Clear All Data</h4><p>Reset the working data to an empty state or reload demo data. Save Changes is required to make it official.</p></div>
+            <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+          </section>
+        </div>
+      `;
+    }
+
+    function dataActionCard(title, description, buttonText, action) {
+      return `<section class="card data-action-card"><div><h4>${escapeHTML(title)}</h4><p>${escapeHTML(description)}</p></div><button class="btn" onclick="${action}">${escapeHTML(buttonText)}</button></section>`;
+    }
+
+    function renderHistory() {
+      document.getElementById("appContent").innerHTML = `
+        <div class="section-title">
+          <div><h3>History / Commits</h3><p>Every official save creates a local version with a restorable snapshot.</p></div>
+        </div>
+        <section class="card"><div class="card-body">
+          ${commitHistory.length ? `<div class="table-wrap"><table>
+            <thead><tr><th>Commit number</th><th>Date/time</th><th>Summary</th><th>Employees</th><th>Departments</th><th>Projects</th><th>Assignments</th><th>Average Utilization</th><th>Actions</th></tr></thead>
+            <tbody>${commitHistory.map(commit => `<tr>
+              <td><strong>#${commit.commitNumber}</strong><br><span class="topbar-meta">${escapeHTML(commit.id)}</span></td>
+              <td>${formatDateTime(commit.dateTime)}</td>
+              <td>${escapeHTML(commit.summary)}<br><span class="topbar-meta">Saved by: ${escapeHTML(commit.savedBy || "Admin")}</span></td>
+              <td>${commit.employeesCount}</td>
+              <td>${commit.departmentsCount}</td>
+              <td>${commit.projectsCount}</td>
+              <td>${commit.assignmentsCount}</td>
+              <td>${commit.averageUtilization}%</td>
+              <td><div class="actions">
+                <button class="btn btn-small" onclick="viewCommitDetails('${commit.id}')">View Details</button>
+                <button class="btn btn-small" onclick="downloadCommitBackup('${commit.id}')">Download Commit Backup</button>
+                <button class="btn btn-danger btn-small" onclick="restoreCommit('${commit.id}')">Restore This Version</button>
+              </div></td>
+            </tr>`).join("")}</tbody>
+          </table></div>` : emptyState("No commits yet. Click Save Changes to create the first version.")}
+        </div></section>
+      `;
+    }
+
+    function viewCommitDetails(commitId) {
+      const commit = commitHistory.find(item => item.id === commitId);
+      if (!commit) return;
+      openModal("Commit #" + commit.commitNumber + " Details", `
+        <div class="detail-list">
+          <div class="detail-item"><span>Commit ID</span><strong>${escapeHTML(commit.id)}</strong></div>
+          <div class="detail-item"><span>Date and Time</span><strong>${formatDateTime(commit.dateTime)}</strong></div>
+          <div class="detail-item"><span>Saved By</span><strong>${escapeHTML(commit.savedBy || "Admin")}</strong></div>
+          <div class="detail-item"><span>Average Utilization</span><strong>${commit.averageUtilization}%</strong></div>
+          <div class="detail-item"><span>Employees</span><strong>${commit.employeesCount}</strong></div>
+          <div class="detail-item"><span>Departments</span><strong>${commit.departmentsCount}</strong></div>
+          <div class="detail-item"><span>Projects</span><strong>${commit.projectsCount}</strong></div>
+          <div class="detail-item"><span>Assignments</span><strong>${commit.assignmentsCount}</strong></div>
+        </div>
+        <hr style="border:0;border-top:1px solid var(--line);margin:18px 0;">
+        <p><strong>Summary:</strong> ${escapeHTML(commit.summary)}</p>
+        <p class="topbar-meta">Snapshot includes employees, departments, projects, assignments, settings, and last saved timestamp.</p>
+      `, [{ label: "Close", className: "btn btn-primary", onClick: closeModal }]);
+    }
+
+    function restoreCommit(commitId) {
+      const commit = commitHistory.find(item => item.id === commitId);
+      if (!commit) return;
+      showConfirmModal("Restore This Version", "Restore commit #" + commit.commitNumber + "? Current working data will be replaced and marked as unsaved until you click Save Changes.", "Restore Version", true)
+        .then(confirmed => {
+          if (!confirmed) return;
+          applyLoadedData(commit.snapshotData);
+          markUnsavedChanges("Restore successful");
+          activeTab = "history";
+          renderCurrentTab();
+        });
+    }
+
+    function downloadCommitBackup(commitId) {
+      const commit = commitHistory.find(item => item.id === commitId);
+      if (!commit) return;
+      downloadJSON({
+        commit,
+        snapshotData: commit.snapshotData
+      }, "employee-tracking-commit-" + commit.commitNumber + "-" + fileDateStamp() + ".json");
+      showToast("Backup downloaded", "success");
+    }
+
+    function downloadFullBackup() {
+      downloadJSON({
+        employees: state.employees,
+        departments: state.departments,
+        projects: state.projects,
+        assignments: state.assignments,
+        settings: state.settings,
+        commitHistory,
+        lastSavedAt
+      }, "employee-tracking-backup-" + fileDateStamp() + ".json");
+      showToast("Backup downloaded", "success");
+    }
+
+    function downloadJSON(data, filename) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      triggerDownload(blob, filename);
+    }
+
+    function downloadCSV(rows, filename) {
+      const csv = rows.map(row => row.map(value => {
+        const cell = String(value ?? "");
+        return /[",\n]/.test(cell) ? "\"" + cell.replace(/"/g, "\"\"") + "\"" : cell;
+      }).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      triggerDownload(blob, filename);
+      showToast("CSV downloaded", "success");
+    }
+
+    function triggerDownload(blob, filename) {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }
+
+    function downloadEmployeesCSV() {
+      downloadCSV([
+        ["Employee Name", "Department", "Designation", "Status", "Notes"],
+        ...state.employees.map(employee => [employee.name, getDepartmentName(employee.departmentId), employee.designation, employee.status, employee.notes])
+      ], "employee-tracking-employees-" + fileDateStamp() + ".csv");
+    }
+
+    function downloadProjectsCSV() {
+      downloadCSV([
+        ["Project Name", "Client Name", "Status", "Start Date", "Expected End Date", "Notes"],
+        ...state.projects.map(project => [project.name, project.clientName, project.status, project.startDate, project.expectedEndDate, project.notes])
+      ], "employee-tracking-projects-" + fileDateStamp() + ".csv");
+    }
+
+    function downloadAssignmentsCSV() {
+      downloadCSV([
+        ["Project Name", "Employee Name", "Department", "Allocation %", "Start Date", "End Date", "Duration Weeks", "Assignment Status", "Notes"],
+        ...state.assignments.map(assignment => [getProjectName(assignment.projectId), getEmployeeName(assignment.employeeId), getDepartmentName(assignment.departmentId), assignment.allocation, assignment.startDate, assignment.endDate, assignment.durationWeeks, calculateAssignmentStatus(assignment), assignment.notes])
+      ], "employee-tracking-assignments-" + fileDateStamp() + ".csv");
+    }
+
+    function downloadDashboardSummaryCSV() {
+      downloadCSV([
+        ["Employee Name", "Department", "Active Projects", "Utilization %", "Availability %", "Utilization Status"],
+        ...state.employees.map(employee => {
+          const utilization = calculateEmployeeUtilization(employee.id);
+          return [employee.name, getDepartmentName(employee.departmentId), utilization.activeProjects.join("; "), utilization.totalAllocation, utilization.availability, utilization.status];
+        })
+      ], "employee-tracking-dashboard-summary-" + fileDateStamp() + ".csv");
+    }
+
+    function fileDateStamp() {
+      const date = new Date();
+      const pad = number => String(number).padStart(2, "0");
+      return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) + "-" + pad(date.getHours()) + "-" + pad(date.getMinutes());
+    }
+
+    function importBackupJSON(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(loadEvent) {
+        try {
+          const parsed = JSON.parse(loadEvent.target.result);
+          const validation = validateBackupStructure(parsed);
+          if (validation) return showToast(validation, "error");
+          pendingImportData = parsed;
+          showConfirmModal("Import Backup JSON", "This will replace current working data and mark the system as unsaved. Continue?", "Import Backup", true)
+            .then(confirmed => {
+              if (!confirmed) return;
+              applyImportedBackup(pendingImportData);
+              pendingImportData = null;
+              markUnsavedChanges("Import successful");
+            });
+        } catch (error) {
+          showToast("Invalid JSON file", "error");
+        } finally {
+          event.target.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function validateBackupStructure(data) {
+      const source = data?.data ? data.data : data;
+      const requiredArrays = ["employees", "departments", "projects", "assignments"];
+      for (const key of requiredArrays) {
+        if (!Array.isArray(source?.[key])) return "Invalid backup: missing " + key;
+      }
+      return "";
+    }
+
+    function applyImportedBackup(data) {
+      const source = data?.data ? data.data : data;
+      state.departments = source.departments || [];
+      state.employees = source.employees || [];
+      state.projects = source.projects || [];
+      state.assignments = source.assignments || [];
+      state.settings = data.settings || source.settings || state.settings || { savedBy: "Admin" };
+      if (Array.isArray(data.commitHistory)) commitHistory = data.commitHistory.slice(0, 50);
+      ensureDefaultSettings();
+      ensureDepartmentBackfill();
+    }
+
+    async function clearAllData() {
+      const confirmed = await showConfirmModal("Clear All Data", "This will replace the current working data. Choose the next state in the following step.", "Continue", true);
+      if (!confirmed) return;
+      openModal("Choose Reset State", "<p>Select whether to reset to an empty state or reload demo data. The result remains unsaved until you click Save Changes.</p>", [
+        { label: "Reset to Empty State", className: "btn btn-danger", onClick: () => {
+          const timestamp = nowIso();
+          state = {
+            departments: defaultDepartmentNames.map(name => ({ id: generateId("dept"), name, createdAt: timestamp, updatedAt: timestamp })),
+            employees: [],
+            projects: [],
+            assignments: [],
+            settings: { savedBy: state.settings?.savedBy || "Admin" }
+          };
+          closeModal();
+          markUnsavedChanges("Data cleared");
+        }},
+        { label: "Reset to Demo Data", className: "btn btn-primary", onClick: () => {
+          applyLoadedData(createDemoDataEnvelope());
+          closeModal();
+          markUnsavedChanges("Demo data loaded");
+        }},
+        { label: "Cancel", className: "btn", onClick: closeModal }
+      ]);
+    }
+
+    function openModal(title, content, actions = []) {
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalContent").innerHTML = content;
+      const footer = document.getElementById("modalFooter");
+      footer.innerHTML = "";
+      actions.forEach(action => {
+        const button = document.createElement("button");
+        button.className = action.className || "btn";
+        button.textContent = action.label;
+        button.addEventListener("click", action.onClick);
+        footer.appendChild(button);
+      });
+      document.getElementById("modalBackdrop").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("modalBackdrop").classList.remove("open");
+      document.getElementById("modalTitle").textContent = "";
+      document.getElementById("modalContent").innerHTML = "";
+      document.getElementById("modalFooter").innerHTML = "";
+    }
+
+    function showConfirmModal(title, message, confirmLabel = "Confirm", isDanger = false) {
+      return new Promise(resolve => {
+        openModal(title, "<p>" + escapeHTML(message) + "</p>", [
+          { label: "Cancel", className: "btn", onClick: () => { closeModal(); resolve(false); } },
+          { label: confirmLabel, className: isDanger ? "btn btn-danger" : "btn btn-primary", onClick: () => { closeModal(); resolve(true); } }
+        ]);
+      });
+    }
+
+    function showToast(message, type = "success") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = "toast " + type;
+      toast.innerHTML = "<strong>" + escapeHTML(message) + "</strong>";
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(12px)";
+        setTimeout(() => toast.remove(), 220);
+      }, 3200);
+    }
+
+    function option(value, label, selectedValue) {
+      return `<option value="${escapeHTML(value)}" ${String(value) === String(selectedValue) ? "selected" : ""}>${escapeHTML(label)}</option>`;
+    }
+
+    function departmentSelectField(id, selectedValue, emptyLabel, onChange) {
+      return `<div class="field"><label>Department${emptyLabel.includes("Select") ? " *" : ""}</label><select id="${id}" ${onChange ? `onchange="${onChange}"` : ""}>${option("", emptyLabel, selectedValue)}${state.departments.map(department => option(department.id, department.name, selectedValue)).join("")}</select></div>`;
+    }
+
+    function projectSelectField(id, selectedValue, emptyLabel, onChange) {
+      return `<div class="field"><label>Project${emptyLabel.includes("Select") ? " *" : ""}</label><select id="${id}" ${onChange ? `onchange="${onChange}"` : ""}>${option("", emptyLabel, selectedValue)}${state.projects.map(project => option(project.id, project.name, selectedValue)).join("")}</select></div>`;
+    }
+
+    function statusPill(status) {
+      const map = {
+        "Available": "pill-success",
+        "Partially Utilized": "pill-success",
+        "Highly Utilized": "pill-blue",
+        "Fully Utilized": "pill-blue",
+        "Overallocated": "pill-red",
+        "Inactive": "pill-gray",
+        "Active": "pill-success",
+        "Planned": "pill-info",
+        "On Hold": "pill-amber",
+        "Completed": "pill-gray",
+        "Upcoming": "pill-info"
+      };
+      return `<span class="pill ${map[status] || "pill-gray"}">${escapeHTML(status)}</span>`;
+    }
+
+    function emptyState(message) {
+      return `<div class="empty-state">${escapeHTML(message)}</div>`;
+    }
+
+    function createDemoDataEnvelope() {
+      const timestamp = nowIso();
+      const departments = defaultDepartmentNames.map(name => ({ id: generateId("dept"), name, createdAt: timestamp, updatedAt: timestamp }));
+      const departmentByName = name => departments.find(department => department.name === name).id;
+      const employees = [
+        ["Ahmed Khan", "3D", "3D Artist"],
+        ["Bilal Hassan", "3D", "Senior 3D Artist"],
+        ["Sara Ali", "2D", "2D Designer"],
+        ["Hira Fatima", "Web", "Frontend Developer"],
+        ["Usman Tariq", "Web", "Web Developer"],
+        ["Zain Malik", "AI", "AI Engineer"],
+        ["Hamza Noor", "Unreal", "Unreal Developer"],
+        ["Ayesha Raza", "BA", "Business Analyst"],
+        ["Rai Ahmed", "Project Management", "Project Manager"]
+      ].map(row => ({
+        id: generateId("emp"),
+        name: row[0],
+        departmentId: departmentByName(row[1]),
+        designation: row[2],
+        status: "Active",
+        notes: "Demo employee",
+        createdAt: timestamp,
+        updatedAt: timestamp
+      }));
+      const projectNames = [
+        "Sakani Metaverse Enhancement",
+        "Dream House Builder",
+        "NHC 3D Suburb Experience",
+        "AI Interior Generator",
+        "VR Training Demo"
+      ];
+      const projects = projectNames.map((name, index) => ({
+        id: generateId("proj"),
+        name,
+        clientName: ["Sakani", "Dream House", "NHC", "Internal AI Lab", "Training Team"][index],
+        status: index === 4 ? "Planned" : "Active",
+        startDate: offsetDate(-14 + index * 3),
+        expectedEndDate: offsetDate(55 + index * 8),
+        notes: "Demo project",
+        createdAt: timestamp,
+        updatedAt: timestamp
+      }));
+      const employeeByName = name => employees.find(employee => employee.name === name).id;
+      const projectByName = name => projects.find(project => project.name === name).id;
+      const demoAssignments = [
+        ["Sakani Metaverse Enhancement", "Ahmed Khan", "3D", 75, -7, 8],
+        ["Sakani Metaverse Enhancement", "Hamza Noor", "Unreal", 50, -4, 10],
+        ["Dream House Builder", "Sara Ali", "2D", 50, -10, 6],
+        ["Dream House Builder", "Hira Fatima", "Web", 80, -3, 7],
+        ["NHC 3D Suburb Experience", "Bilal Hassan", "3D", 60, -6, 12],
+        ["AI Interior Generator", "Zain Malik", "AI", 100, -1, 9],
+        ["AI Interior Generator", "Usman Tariq", "Web", 40, 2, 6],
+        ["VR Training Demo", "Ayesha Raza", "BA", 25, 7, 5],
+        ["Sakani Metaverse Enhancement", "Rai Ahmed", "Project Management", 50, -5, 11]
+      ];
+      const assignments = demoAssignments.map(item => {
+        const startDate = offsetDate(item[4]);
+        return {
+          id: generateId("assign"),
+          projectId: projectByName(item[0]),
+          employeeId: employeeByName(item[1]),
+          departmentId: departmentByName(item[2]),
+          allocation: item[3],
+          startDate,
+          durationWeeks: item[5],
+          endDate: calculateEndDate(startDate, item[5]),
+          notes: "Demo allocation",
+          createdAt: timestamp,
+          updatedAt: timestamp
+        };
+      });
+      return {
+        timestamp,
+        data: { departments, employees, projects, assignments },
+        settings: { savedBy: "Admin" }
+      };
+    }
+
+    function offsetDate(days) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + days);
+      return date.toISOString().slice(0, 10);
+    }
+  </script>
+</body>
+</html>
